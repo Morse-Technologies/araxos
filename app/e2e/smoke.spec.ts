@@ -183,6 +183,19 @@ test("the wall screen follows the theme instead of forcing dark", async ({ page 
   await expect.poll(bg).toBe(light);
 });
 
+test("the run screen shows the cited manual page from the PDF with the passage highlighted", async ({ page }) => {
+  await page.goto("/cases/c-421/run?as=u-jgarcia");
+  const manual = page.getByRole("complementary", { name: "Manual and evidence" });
+  await expect(manual.locator(".manual-page canvas")).toBeVisible();
+  await expect(manual.locator("mark.manual-cite")).toHaveText("Cover bolts M10, reference torque 45 N·m.");
+  await expect(manual.getByText("p. 47 of 120")).toBeVisible();
+  await manual.getByRole("button", { name: "Next page" }).click();
+  await expect(manual.getByText("p. 48 of 120")).toBeVisible();
+  await expect(manual.locator("mark.manual-cite")).toHaveCount(0);
+  await manual.getByRole("button", { name: "Back to p. 47" }).click();
+  await expect(manual.locator("mark.manual-cite")).toBeVisible();
+});
+
 test("the theme toggle switches to dark and back", async ({ page }) => {
   await page.goto("/dashboard");
   const html = page.locator("html");

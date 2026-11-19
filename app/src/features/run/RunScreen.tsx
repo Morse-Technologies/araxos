@@ -13,6 +13,7 @@ import { fmtTime } from "@/lib/format";
 import { evidenceKindLabel, stepKindLabel } from "@/lib/labels";
 import { Band, Button, Checkbox, Kbd, Pill, buttonStyles } from "@/ui/atoms";
 import { EmptyState, ErrorState, LoadingRows, Modal, SafetyTag, stepKindIcon } from "@/ui/cells";
+import { CitedManual } from "@/features/manual/CitedManual";
 import { EvidenceSheet, type EvidenceTab } from "./EvidenceSheet";
 import { SafetyStep } from "./SafetyStep";
 import { SaberSheet } from "./SaberSheet";
@@ -167,19 +168,8 @@ export function RunScreen({ id }: { id: string }) {
         <aside className="flex min-h-0 flex-col gap-5 overflow-y-auto border-t border-rule p-4 lg:border-t-0 lg:border-l" aria-label="Manual and evidence">
           <section className="flex flex-col gap-2">
             <h2 className="flex items-center gap-2 text-body font-medium"><BookOpen className="size-4" aria-hidden />Cited manual</h2>
-            {shown.cite ? (
-              <figure className="rounded-card border border-border">
-                <div className="border-b border-rule px-3 py-2"><Band kind="manual" size="xs">{shown.cite.doc} · p. {shown.cite.page}</Band></div>
-                <div className="flex flex-col gap-2 p-3">
-                  <div className="aspect-[3/4] rounded-control bg-raised p-4 text-small text-muted" aria-label={`Page ${shown.cite.page} preview`}>
-                    <div className="mb-2 h-2 w-2/3 rounded bg-control" /><div className="mb-1 h-1.5 w-full rounded bg-control/60" /><div className="mb-1 h-1.5 w-5/6 rounded bg-control/60" />
-                    <p className="my-3 rounded bg-[var(--accent-soft)] px-2 py-1 text-text">{shown.cite.quote}</p>
-                    <div className="mb-1 h-1.5 w-full rounded bg-control/60" /><div className="h-1.5 w-3/4 rounded bg-control/60" />
-                  </div>
-                  <figcaption className="text-small text-muted">The highlight is the passage the step cites.</figcaption>
-                </div>
-              </figure>
-            ) : <p className="text-small text-muted">This step cites no manual page.</p>}
+            {shown.cite ? <CitedManual key={shown.key} cite={shown.cite} />
+              : <p className="text-small text-muted">This step cites no manual page.</p>}
           </section>
           <section className="flex flex-col gap-2">
             <div className="flex items-center justify-between">

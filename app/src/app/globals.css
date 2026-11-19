@@ -290,3 +290,11 @@
 .react-flow .ax-node-off { opacity: 0.35; }
 .react-flow .ax-node-on { box-shadow: 0 0 0 2px var(--accent); }
 .react-flow { --xy-background-color: var(--surface); --xy-edge-stroke: var(--muted); --xy-edge-label-background-color: var(--surface); --xy-edge-label-color: var(--text); }
+
+/* The cited passage in the pdf.js text layer: the canvas draws the glyphs, the mark only tints them. */
+.manual-page .textLayer mark.manual-cite {
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
+  color: transparent;
+  border-radius: 2px;
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+}
