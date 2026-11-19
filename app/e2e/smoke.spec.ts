@@ -40,7 +40,7 @@ async function badge(page: Page, name: string) {
   for (const d of "1234") await page.getByRole("button", { name: d, exact: true }).click();
 }
 
-test("a lockout needs a second person on a second device before the work goes on", async ({ page, context }) => {
+async function applyL21(page: Page) {
   await page.goto("/cases/c-424/run?as=u-aruiz");
   await expect(page.getByRole("heading", { name: "Electrical lockout of the main motor" })).toBeVisible();
   await page.getByRole("button", { name: "Scan" }).first().click();
@@ -50,6 +50,10 @@ test("a lockout needs a second person on a second device before the work goes on
   await expect(page.getByText("Taken")).toBeVisible();
   await hold(page, page.getByRole("button", { name: "Hold to apply the lock" }));
   await expect(page.getByText("Waiting for a second person")).toBeVisible();
+}
+
+test("a lockout needs a second person on a second device before the work goes on", async ({ page, context }) => {
+  await applyL21(page);
 
   // The second terminal is another window on the same demo world.
   const other = await context.newPage();
@@ -80,6 +84,32 @@ test("a lockout needs a second person on a second device before the work goes on
   await expect(other.getByRole("heading", { name: "Lock verified" })).toBeVisible();
 
   // The first terminal moves on by itself.
+  await expect(page.getByRole("heading", { name: "Check for absence of voltage" })).toBeVisible();
+});
+
+test("a shift lead verifies a lockout from their own laptop, never their own lock", async ({ page }) => {
+  await applyL21(page);
+
+  // Ana is a lead too, but she applied L-21.
+  await page.goto("/safety/verify?lock=L-21&as=u-aruiz");
+  await page.getByRole("button", { name: "Scan L-21" }).click();
+  await hold(page, page.getByRole("button", { name: "Hold to verify" }));
+  await expect(page.getByText("safety/self_verification")).toBeVisible();
+
+  // A technician cannot verify from a laptop.
+  await page.goto("/safety/verify?lock=L-21&as=u-jgarcia");
+  await expect(page.getByText("Only shift leads and named verifiers can verify a lock.")).toBeVisible();
+
+  // Marta, from her laptop.
+  await page.goto("/safety?as=u-mlosada");
+  await page.getByRole("radio", { name: "Waiting" }).click();
+  await page.getByRole("row", { name: /L-21/ }).getByRole("link", { name: "Verify" }).click();
+  await expect(page).toHaveURL(/\/safety\/verify\?lock=L-21/);
+  await page.getByRole("button", { name: "Scan L-21" }).click();
+  await hold(page, page.getByRole("button", { name: "Hold to verify" }));
+  await expect(page.getByRole("heading", { name: "Lock verified" })).toBeVisible();
+
+  await page.goto("/cases/c-424/run?as=u-aruiz");
   await expect(page.getByRole("heading", { name: "Check for absence of voltage" })).toBeVisible();
 });
 

@@ -56,12 +56,12 @@ export function VerifyScreen() {
             <LockSummary lock={lock} removal={picked.removal} />
             <BadgePin terminalId={terminalId} title="Verifier: scan your badge" onSignedIn={setVerifier} />
           </div>
-        ) : <Confirm lock={lock} removal={picked.removal} verifier={verifier} terminalId={terminalId} onSignOut={() => setVerifier(null)} />}
+        ) : <VerifyConfirm lock={lock} removal={picked.removal} verifier={verifier} deviceId={terminalId} onSignOut={() => setVerifier(null)} />}
     </KioskFrame>
   );
 }
 
-function LockSummary({ lock, removal }: { lock: Lock; removal: boolean }) {
+export function LockSummary({ lock, removal }: { lock: Lock; removal: boolean }) {
   const look = useLookups();
   const { data: cases } = useCases();
   const c = cases?.find((x) => x.id === lock.caseId);
@@ -73,7 +73,8 @@ function LockSummary({ lock, removal }: { lock: Lock; removal: boolean }) {
   );
 }
 
-function Confirm({ lock, removal, verifier, terminalId, onSignOut }: { lock: Lock; removal: boolean; verifier: User; terminalId: string; onSignOut: () => void }) {
+/** Scan + hold to verify. On a terminal `onSignOut` ends the verifier's session; on a lead's laptop it is absent. */
+export function VerifyConfirm({ lock, removal, verifier, deviceId, onSignOut }: { lock: Lock; removal: boolean; verifier: User; deviceId: string; onSignOut?: () => void }) {
   const verify = useVerifyLock();
   const [scanned, setScanned] = useState("");
   const [problem, setProblem] = useState<Problem | null>(null);
@@ -83,13 +84,15 @@ function Confirm({ lock, removal, verifier, terminalId, onSignOut }: { lock: Loc
       <CheckCircle2 className="size-12 text-positive" aria-hidden />
       <h2 className="text-title font-medium">{removal ? "Removal verified" : "Lock verified"}</h2>
       <p className="text-body text-muted">{lock.id} on {lock.point}, verified by {verifier.name}. The technician&apos;s screen moves on by itself.</p>
-      <Button variant="primary" size="lg" data-main-action onClick={onSignOut}>Sign out of this terminal</Button>
+      {onSignOut
+        ? <Button variant="primary" size="lg" data-main-action onClick={onSignOut}>Sign out of this terminal</Button>
+        : <Link href="/safety" data-main-action className={buttonStyles({ variant: "primary", size: "lg" })}>Back to Safety</Link>}
     </div>
   );
   return (
     <div className="flex flex-col gap-5">
       <LockSummary lock={lock} removal={removal} />
-      <p className="flex items-center gap-2 text-body"><Avatar name={verifier.name} hue={verifier.hue} size={24} />Signed in as {verifier.name}<button type="button" className="ml-auto text-small text-muted underline" onClick={onSignOut}>Not you?</button></p>
+      <p className="flex items-center gap-2 text-body"><Avatar name={verifier.name} hue={verifier.hue} size={24} />{onSignOut ? "Signed in as" : "Verifying from your own device as"} {verifier.name}{onSignOut && <button type="button" className="ml-auto text-small text-muted underline" onClick={onSignOut}>Not you?</button>}</p>
       <Field label={removal ? "Check the lock is off and scan it" : "Go to the point, check the lock and scan it"} help="Scan the code on the lock body, not the case.">{(f) => (
         <div className="flex flex-wrap gap-2">
           <Input {...fieldProps(f)} value={scanned} onChange={(e) => { setScanned(e.target.value.toUpperCase()); setProblem(null); }} placeholder={lock.id} className="w-40 font-mono" />
@@ -104,11 +107,11 @@ function Confirm({ lock, removal, verifier, terminalId, onSignOut }: { lock: Loc
         </div>
       )}
       <HoldButton variant="primary" size="lg" data-main-action holdMs={SAFETY_HOLD_MS} doneLabel="Verified" disabled={!scanned || verify.isPending}
-        onConfirm={() => verify.mutateAsync({ lockId: lock.id, scanned, verifierId: verifier.id, deviceId: terminalId, removal })
+        onConfirm={() => verify.mutateAsync({ lockId: lock.id, scanned, verifierId: verifier.id, deviceId, removal })
           .then(() => setDone(true)).catch((e: unknown) => setProblem(e instanceof Problem ? e : new Problem("unknown", "Could not verify.")))}>
         Hold to verify
       </HoldButton>
-      <Link href="/kiosk/verify" className={buttonStyles({ variant: "ghost" })}>Another lock</Link>
+      <Link href={onSignOut ? "/kiosk/verify" : "/safety"} className={buttonStyles({ variant: "ghost" })}>Another lock</Link>
     </div>
   );
 }

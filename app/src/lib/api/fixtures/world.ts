@@ -69,11 +69,14 @@ const D_ROWS: D[] = [
   ["t-taller3", "TALLER-3", "terminal", "Mechanical maintenance", null, "workshop", "Windows 11 IoT · Edge kiosk", 40, 1, 0],
   ["t-panel-l2", "PANEL-L2", "terminal", "Extrusion", "L2", "panel", "Windows 10 IoT · Edge kiosk", 21, 3, 0],
   ["d-aruiz", "Ana Ruiz · laptop", "personal", "Maintenance engineering", null, "office", "Windows 11 · Chrome", 60, 0, 0],
+  ["d-mlosada", "Marta Losada · laptop", "personal", "Extrusion", null, "office", "Windows 11 · Edge", 45, 5, 0],
   ["p-armario-1", "Shared phone 1", "phone", "Mechanical maintenance", null, null, "Android 16 · Galaxy XCover7 Pro", 33, 12, 2],
   ["p-armario-2", "Shared phone 2", "phone", "Mechanical maintenance", null, null, "Android 16 · Galaxy XCover7 Pro", 33, 48, 0],
   ["p-mlosada", "Marta Losada · phone", "phone", "Extrusion", "L2", null, "Android 16 · Galaxy Tab Active5", 30, 6, 0],
   ["p-old-3", "Shared phone 3", "phone", "Utilities", null, null, "Android 15 · Galaxy XCover6 Pro", 120, 9000, 0],
 ];
+/** Whose own laptop is which; everyone else in the demo works from the workshop terminal. */
+export const LAPTOP_OF: Record<string, string> = { "u-aruiz": "d-aruiz", "u-mlosada": "d-mlosada" };
 export const DEVICES: Device[] = D_ROWS.map(([id, name, kind, area, line, density, os, days, seen, ops]) => ({
   id, name, kind, area, line, density, os, enrolledAt: ago(days * DAY), lastSeenAt: ago(seen), status: id === "p-old-3" ? "revoked" : "active", pendingOps: ops,
 }));

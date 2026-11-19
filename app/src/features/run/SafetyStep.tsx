@@ -105,7 +105,7 @@ function Handoff({ lock, removal }: { lock: Lock; removal: boolean }) {
       <TotpQr seed={url} />
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <p className="flex items-center gap-2 text-section font-medium"><UserRoundCheck className="size-5" aria-hidden />Waiting for a second person</p>
-        <p className="text-body text-muted">Someone else, on their own phone or another terminal, scans this code or {lock.id} itself and confirms it with their badge. You cannot verify your own lock.</p>
+        <p className="text-body text-muted">Someone else, on another terminal with their badge or a shift lead from their own laptop (Safety → Verify), scans this code or {lock.id} itself and confirms it. You cannot verify your own lock, and not from this device.</p>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => window.open(path, "araxos-verify", "popup,width=1100,height=800")}><ExternalLink />Open as another terminal</Button>
           <Button variant="ghost" onClick={() => { void navigator.clipboard?.writeText(url); toast("Link copied"); }}><Copy />Copy link</Button>

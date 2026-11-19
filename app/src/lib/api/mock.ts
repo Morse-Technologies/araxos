@@ -3,7 +3,7 @@ import { AUDIT, appendAudit, digest, verifyChain, type AuditInput } from "./fixt
 import { CASES, KNOWLEDGE, LOCKS } from "./fixtures/cases";
 import { ANALYTICS, GROUP_PROCEDURES, INTERVIEWS, LICENSE, MCP_PROPOSALS, MCP_TOKENS, SETTINGS, SITES, TOOLS, mttrSeries } from "./fixtures/catalog";
 import { MACHINE_KINDS, VERSIONS, bodySha, procedureSummaries } from "./fixtures/procedures";
-import { BADGES, BADGE_CODES, DEMO_PIN, DEVICES, GROUP_NAME, MACHINES, NORTH, PLANTS, TERMINALS, USERS, machineCode } from "./fixtures/world";
+import { BADGES, BADGE_CODES, DEMO_PIN, DEVICES, GROUP_NAME, LAPTOP_OF, MACHINES, NORTH, PLANTS, TERMINALS, USERS, machineCode } from "./fixtures/world";
 import { sha256 } from "./random";
 import {
   Problem, type AraxosApi, type Case, type CaseStatus, type DiffRow, type Id, type Lock, type Machine, type Overview,
@@ -41,7 +41,7 @@ export function setMockActor(id: Id) { if (USERS.some((u) => u.id === id)) { w()
 export function resetMock() { db = fresh(); try { localStorage.removeItem(MOCK_STORAGE_KEY); } catch {} }
 
 const actor = (): User => USERS.find((u) => u.id === w().actorId)!;
-const me = () => ({ ...actor(), plantId: NORTH, groupName: GROUP_NAME, deviceId: actor().id === "u-aruiz" ? "d-aruiz" : "t-taller2" });
+const me = () => ({ ...actor(), plantId: NORTH, groupName: GROUP_NAME, deviceId: LAPTOP_OF[actor().id] ?? "t-taller2" });
 function audit(e: Omit<AuditInput, "at" | "actorId" | "actor">) {
   const a = actor();
   appendAudit(w().audit, NORTH, { at: nowIso(), actorId: a.id, actor: a.name, ...e });

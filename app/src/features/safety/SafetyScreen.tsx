@@ -2,12 +2,13 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useLookups } from "@/features/cases/shared";
-import { useCases, useLocks, useSafetyPolicy, useUsers } from "@/features/hooks";
+import { useCases, useLocks, useMe, useSafetyPolicy, useUsers } from "@/features/hooks";
 import type { Lock, LockState, SafetyPolicy } from "@/lib/api/types";
 import { clockNow } from "@/lib/clock";
 import { fmtDate, fmtTime } from "@/lib/format";
 import { lockStateLabel } from "@/lib/labels";
 import { Pill, buttonStyles } from "@/ui/atoms";
+import { canVerifyFromLaptop, verifyPath } from "./LaptopVerifyScreen";
 import { Card, DataTable, EmptyState, ErrorState, KeyValues, KpiStrip, LoadingRows, PageHeader, Segmented } from "@/ui/cells";
 import { Canvas } from "@/ui/templates/ShellLayout";
 
@@ -47,10 +48,6 @@ function lockKpis(all: Lock[]) {
   ];
 }
 
-function verifyHref(l: Lock): string {
-  return l.state === "removal_pending" ? `/kiosk/verify?lock=${l.id}&removal=1` : `/kiosk/verify?lock=${l.id}`;
-}
-
 /** D5: every lock on the plant, who applied and verified it, plus the dual-signature policy. */
 export function SafetyScreen() {
   const locks = useLocks();
@@ -69,6 +66,8 @@ function SafetyBody({ locks, filter, onFilter }: { locks: Lock[]; filter: Filter
   const caseCode = (id: string) => cases.data?.find((c) => c.id === id)?.code ?? id;
   const nameOf = (id: string | null) => (id ? look.person(id)?.name ?? id : "—");
   const machine = (id: string) => look.machine(id)?.code ?? "—";
+  const { data: me } = useMe();
+  const laptop = canVerifyFromLaptop(me, policy.data);
 
   return (
     <Canvas>
@@ -80,7 +79,7 @@ function SafetyBody({ locks, filter, onFilter }: { locks: Lock[]; filter: Filter
         <KpiStrip items={lockKpis(locks)} />
         <Segmented label="Locks" options={FILTERS} value={filter} onChange={onFilter} />
         {!rows.length ? <EmptyState>No locks in this view.</EmptyState>
-          : <LocksTable rows={rows} caseCode={caseCode} nameOf={nameOf} machine={machine} />}
+          : <LocksTable rows={rows} caseCode={caseCode} nameOf={nameOf} machine={machine} laptop={laptop} />}
         {policy.isPending ? <LoadingRows rows={4} pitch="h-10" />
           : policy.isError ? <ErrorState what="the safety policy" onRetry={() => policy.refetch()} />
             : policy.data && <PolicyCard policy={policy.data} nameOf={(id) => users.data?.find((u) => u.id === id)?.name ?? id} />}
@@ -89,8 +88,8 @@ function SafetyBody({ locks, filter, onFilter }: { locks: Lock[]; filter: Filter
   );
 }
 
-function LocksTable({ rows, caseCode, nameOf, machine }: {
-  rows: Lock[]; caseCode: (id: string) => string; nameOf: (id: string | null) => string; machine: (id: string) => string;
+function LocksTable({ rows, caseCode, nameOf, machine, laptop }: {
+  laptop: boolean; rows: Lock[]; caseCode: (id: string) => string; nameOf: (id: string | null) => string; machine: (id: string) => string;
 }) {
   return (
     <DataTable label="Locks" rows={rows} rowKey={(l) => l.id} minWidth={960} columns={[
@@ -109,7 +108,7 @@ function LocksTable({ rows, caseCode, nameOf, machine }: {
       { key: "s", label: "State", cell: (l) => <Pill tone={LOCK_TONE[l.state]}>{lockStateLabel[l.state]}</Pill> },
       { key: "x", label: <span className="sr-only">Verify</span>, className: "w-28 text-right", cell: (l) => (
         (l.state === "applied" || l.state === "removal_pending") && (
-          <Link href={verifyHref(l)} className={buttonStyles({ variant: "outline", size: "sm" })}>Verify</Link>
+          <Link href={verifyPath(l, laptop)} className={buttonStyles({ variant: "outline", size: "sm" })}>Verify</Link>
         )
       ) },
     ]} />

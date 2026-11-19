@@ -12,6 +12,7 @@ import { lockStateLabel } from "@/lib/labels";
 import { Button, buttonStyles } from "@/ui/atoms";
 import { Card, CaseStatusPill, EmptyState, ErrorState, LoadingRows, PageHeader, SeverityGlyph } from "@/ui/cells";
 import { Canvas } from "@/ui/templates/ShellLayout";
+import { verifyPath } from "@/features/safety/LaptopVerifyScreen";
 
 /** T2: the signed-in person's queue — continue, assigned, unassigned nearby, and locks waiting for them. */
 export function WorkScreen() {
@@ -149,7 +150,7 @@ function LocksWaiting({ rows, machineCode }: { rows: Lock[]; machineCode: (id: s
           {rows.map((l) => (
             <li key={l.id}>
               <Link
-                href={l.state === "removal_pending" ? `/kiosk/verify?lock=${l.id}&removal=1` : `/kiosk/verify?lock=${l.id}`}
+                href={verifyPath(l, true)}
                 className="flex flex-wrap items-center gap-3 px-4 py-3 text-body hover:bg-raised"
               >
                 <span className="font-medium">{l.id}</span>
