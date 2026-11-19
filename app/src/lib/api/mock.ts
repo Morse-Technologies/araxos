@@ -36,6 +36,8 @@ export function reloadFromStorage() {
 }
 const w = (): Db => { if (!loaded && typeof window !== "undefined") reloadFromStorage(); return db; };
 const save = () => { try { localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(db)); } catch {} };
+/** Demo links and screenshots open as a given person: `?as=u-pvidal` (the mock's `/auth/switch`). */
+export function setMockActor(id: Id) { if (USERS.some((u) => u.id === id)) { w().actorId = id; save(); } }
 export function resetMock() { db = fresh(); try { localStorage.removeItem(MOCK_STORAGE_KEY); } catch {} }
 
 const actor = (): User => USERS.find((u) => u.id === w().actorId)!;

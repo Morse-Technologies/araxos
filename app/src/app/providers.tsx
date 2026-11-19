@@ -2,7 +2,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 import { Toaster } from "sonner";
-import { MOCK_STORAGE_KEY, reloadFromStorage } from "@/lib/api";
+import { MOCK_STORAGE_KEY, reloadFromStorage, setMockActor } from "@/lib/api";
 import { SmoothScroll } from "@/lib/smooth";
 import { TooltipProvider } from "@/ui/atoms";
 
@@ -16,10 +16,12 @@ function useCrossWindowSync(client: QueryClient) {
 }
 
 export function Providers({ children }: { children: ReactNode }) {
-  const [client] = useState(
+  const [client] = useState(() => {
+    const as = typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("as");
+    if (as) setMockActor(as);
     // Stale-while-revalidate: cached data shows instantly and refreshes quietly on focus or after 30 s.
-    () => new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: true, retry: 1 }, mutations: { retry: 0 } } }),
-  );
+    return new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: true, retry: 1 }, mutations: { retry: 0 } } });
+  });
   useCrossWindowSync(client);
   return (
     <QueryClientProvider client={client}>
