@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useTheme } from "@/features/shell/theme";
 import type { Step } from "@/lib/api/types";
 import { stepKindLabel } from "@/lib/labels";
+import { reduced } from "@/lib/motion";
 
 const ROW = 92;
 const COL = 300;
@@ -39,7 +40,7 @@ export function BranchGraph({ steps, highlight }: { steps: Step[]; highlight?: s
     const on = new Set(highlight);
     return {
       nodes: g.nodes.map((n) => ({ ...n, className: `${n.className} ${on.has(n.id) ? "ax-node-on" : "ax-node-off"}` })),
-      edges: g.edges.map((e) => ({ ...e, animated: on.has(e.source) && on.has(e.target) })),
+      edges: g.edges.map((e) => ({ ...e, animated: !reduced() && on.has(e.source) && on.has(e.target), style: on.has(e.source) && on.has(e.target) ? { stroke: "var(--accent)", strokeWidth: 2 } : undefined })),
     };
   }, [steps, highlight]);
   return (

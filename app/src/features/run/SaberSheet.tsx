@@ -54,7 +54,7 @@ export function SaberSheet({ open, onOpenChange, caseId, procedureId, step, dict
         <div className="flex items-center gap-3 rounded-card border border-border p-3">
           {recording ? (
             <>
-              <span className="size-2.5 animate-pulse rounded-full bg-negative" aria-hidden />
+              <span className="size-2.5 rounded-full bg-negative" aria-hidden />
               <span className="text-body num" role="timer">Recording {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}</span>
               <Button className="ml-auto" variant="outline" onClick={stop}><Square />Stop</Button>
             </>

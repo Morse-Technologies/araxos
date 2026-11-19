@@ -49,7 +49,7 @@ export function InterviewScreen() {
           : <Button variant="outline" onClick={() => setRecording(true)}><Mic />Resume</Button>}
       />
       <p className="mt-4 flex items-center gap-2 text-body" role="timer">
-        {recording && <span className="size-2.5 animate-pulse rounded-full bg-negative" aria-hidden />}
+        {recording && <span className="size-2.5 rounded-full bg-negative" aria-hidden />}
         <span className="num">{clock(iv.seconds + extra)}</span><span className="text-muted">{recording ? "recording" : "paused"}</span>
       </p>
       <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
