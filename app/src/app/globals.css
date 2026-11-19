@@ -282,3 +282,11 @@
 
 /* uPlot's drag-to-zoom selection, in ink so it reads in both themes. */
 .u-select { background: color-mix(in srgb, var(--text) 8%, transparent); }
+
+/* Procedure graph nodes (E1): ink on surface; safety carries its tag colour and a word, never colour alone. */
+.react-flow .ax-node { width: 240px; border-radius: var(--radius-card); border: 1px solid var(--control); background: var(--surface); color: var(--text); padding: 8px 12px; }
+.react-flow .ax-node-decision { border-style: dashed; }
+.react-flow .ax-node-safety { background: var(--pill-negative-bg); color: var(--pill-negative-ink); border-color: currentColor; }
+.react-flow .ax-node-off { opacity: 0.35; }
+.react-flow .ax-node-on { box-shadow: 0 0 0 2px var(--accent); }
+.react-flow { --xy-background-color: var(--surface); --xy-edge-stroke: var(--muted); --xy-edge-label-background-color: var(--surface); --xy-edge-label-color: var(--text); }
