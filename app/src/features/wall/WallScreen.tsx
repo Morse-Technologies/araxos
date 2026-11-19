@@ -115,7 +115,7 @@ function WallFrame({ clock, children }: { clock: string; children: ReactNode }) 
         <Mark className="size-10" />
         <p className="text-section text-muted num">{fmtDate(clock)} · {fmtTime(clock)}</p>
       </header>
-      {children}
+      <main id="main" className="flex flex-1 flex-col">{children}</main>
     </div>
   );
 }

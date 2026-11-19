@@ -6,7 +6,7 @@ import { useCaptureKnowledge, useTranscribe } from "@/features/hooks";
 import type { KnowledgeItem, Step } from "@/lib/api/types";
 import { knowledgeKindLabel } from "@/lib/labels";
 import { Button, Spinner, Textarea } from "@/ui/atoms";
-import { Field, Segmented, Sheet } from "@/ui/cells";
+import { Field, fieldProps, Segmented, Sheet } from "@/ui/cells";
 import { showProblem } from "@/features/cases/shared";
 
 type Kind = KnowledgeItem["kind"];
@@ -67,7 +67,7 @@ export function SaberSheet({ open, onOpenChange, caseId, procedureId, step, dict
             </>
           )}
         </div>
-        <Field label="In your words" help="You can edit the transcript before saving.">{(f) => <Textarea {...f} rows={5} value={text} onChange={(e) => setText(e.target.value)} />}</Field>
+        <Field label="In your words" help="You can edit the transcript before saving.">{(f) => <Textarea {...fieldProps(f)} rows={5} value={text} onChange={(e) => setText(e.target.value)} />}</Field>
         <Button variant="primary" size="lg" data-main-action disabled={!text.trim() || capture.isPending} onClick={save}>Save to Saber</Button>
       </div>
     </Sheet>

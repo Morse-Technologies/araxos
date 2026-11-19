@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useAddEvidence } from "@/features/hooks";
 import type { EvidenceKind, Step } from "@/lib/api/types";
 import { Button, Halftone, Input, Textarea } from "@/ui/atoms";
-import { Field, Sheet, Tabs } from "@/ui/cells";
+import { Field, fieldProps, Sheet, Tabs } from "@/ui/cells";
 import { showProblem } from "@/features/cases/shared";
 
 export type EvidenceTab = Exclude<EvidenceKind, "note"> | "note";
@@ -48,7 +48,7 @@ export function EvidenceSheet({ open, onOpenChange, caseId, step, tab, onTab, by
         )}
         {tab === "file" && (
           <div className="flex flex-col gap-3">
-            <Field label="File" help="Photos from a camera, a PDF report or a log export.">{(f) => <Input {...f} type="file" onChange={(e) => setFile(e.target.files?.[0]?.name ?? "")} />}</Field>
+            <Field label="File" help="Photos from a camera, a PDF report or a log export.">{(f) => <Input {...fieldProps(f)} type="file" onChange={(e) => setFile(e.target.files?.[0]?.name ?? "")} />}</Field>
             <Button variant="primary" disabled={!file} onClick={() => save("file", file)}><FileUp />Attach {file || "file"}</Button>
           </div>
         )}
@@ -62,14 +62,14 @@ export function EvidenceSheet({ open, onOpenChange, caseId, step, tab, onTab, by
           <div className="flex flex-col gap-3">
             <Field label={step.requirements.find((r) => r.kind === "measurement")?.label ?? "Value"} help={step.range ? `Expected ${step.range.min}–${step.range.max} ${step.range.unit}` : undefined}
               error={value && inRange === false ? step.range?.onOutOfRange : undefined}>
-              {(f) => <Input {...f} inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} />}
+              {(f) => <Input {...fieldProps(f)} inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} />}
             </Field>
             <Button variant="primary" disabled={!value || Number.isNaN(n)} onClick={() => save("measurement", step.requirements.find((r) => r.kind === "measurement")?.label ?? "Measurement", { value: n, unit: step.range?.unit, inRange })}><Ruler />Record</Button>
           </div>
         )}
         {tab === "note" && (
           <div className="flex flex-col gap-3">
-            <Field label="Note">{(f) => <Textarea {...f} rows={4} value={note} onChange={(e) => setNote(e.target.value)} />}</Field>
+            <Field label="Note">{(f) => <Textarea {...fieldProps(f)} rows={4} value={note} onChange={(e) => setNote(e.target.value)} />}</Field>
             <Button variant="primary" disabled={!note.trim()} onClick={() => save("note", note.trim())}><StickyNote />Add note</Button>
           </div>
         )}

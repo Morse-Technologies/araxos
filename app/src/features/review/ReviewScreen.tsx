@@ -10,7 +10,7 @@ import type { Me, Procedure, ProcedureVersion, SignatureRole } from "@/lib/api/t
 import { cn } from "@/lib/cn";
 import { fmtAgo, fmtDate, fmtTime } from "@/lib/format";
 import { Avatar, Button, Select, Textarea } from "@/ui/atoms";
-import { EmptyState, ErrorState, Field, LoadingRows, Modal, SafetyTag, VersionPill } from "@/ui/cells";
+import { EmptyState, ErrorState, Field, fieldProps, LoadingRows, Modal, SafetyTag, VersionPill } from "@/ui/cells";
 import { SplitLayout } from "@/ui/templates/ShellLayout";
 import { SignModal } from "./SignModal";
 
@@ -156,7 +156,7 @@ function ReturnModal({ open, onOpenChange, versionId }: { open: boolean; onOpenC
   return (
     <Modal open={open} onOpenChange={onOpenChange} title="Return to draft">
       <div className="flex flex-col gap-4 px-5 pt-3 pb-5">
-        <Field label="What has to change?" help="The author sees this. Any signature already given is cleared.">{(f) => <Textarea {...f} rows={3} value={reason} onChange={(e) => setReason(e.target.value)} />}</Field>
+        <Field label="What has to change?" help="The author sees this. Any signature already given is cleared.">{(f) => <Textarea {...fieldProps(f)} rows={3} value={reason} onChange={(e) => setReason(e.target.value)} />}</Field>
         <Button variant="primary" disabled={!reason.trim() || ret.isPending} onClick={() => ret.mutate({ versionId, reason: reason.trim() }, { onSuccess: () => { toast("Returned to draft"); onOpenChange(false); }, onError: showProblem })}>Return to draft</Button>
       </div>
     </Modal>

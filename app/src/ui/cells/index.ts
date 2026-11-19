@@ -1,5 +1,5 @@
 export { Card, PageHeader } from "./PageHeader";
-export { Field } from "./Field";
+export { Field, fieldProps } from "./Field";
 export { Segmented } from "./Segmented";
 export { LoadMore } from "./LoadMore";
 export { Sheet, Modal, Menu } from "./Overlay";

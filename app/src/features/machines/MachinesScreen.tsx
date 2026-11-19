@@ -8,7 +8,7 @@ import type { Machine } from "@/lib/api/types";
 import { fmtNum } from "@/lib/format";
 import { useEnter } from "@/lib/gsapIn";
 import { Button, Input, Select } from "@/ui/atoms";
-import { DataTable, EmptyState, ErrorState, Field, KeyValues, LoadingRows, PageHeader, Sheet } from "@/ui/cells";
+import { DataTable, EmptyState, ErrorState, Field, fieldProps, KeyValues, LoadingRows, PageHeader, Sheet } from "@/ui/cells";
 import { Canvas } from "@/ui/templates/ShellLayout";
 import { qrModules } from "./qrGrid";
 
@@ -159,21 +159,21 @@ function AddMachineForm({ onDone }: { onDone: () => void }) {
 
   return (
     <div className="flex flex-col gap-4 px-5 py-4">
-      <Field label="Code">{(f) => <Input {...f} value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="EXT-05" />}</Field>
-      <Field label="Name">{(f) => <Input {...f} value={name} onChange={(e) => setName(e.target.value)} placeholder="Extruder 5" />}</Field>
+      <Field label="Code">{(f) => <Input {...fieldProps(f)} value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="EXT-05" />}</Field>
+      <Field label="Name">{(f) => <Input {...fieldProps(f)} value={name} onChange={(e) => setName(e.target.value)} placeholder="Extruder 5" />}</Field>
       <Field label="Kind">{(f) => (
-        <Select {...f} value={kind} onChange={(e) => setKind(e.target.value)}>
+        <Select {...fieldProps(f)} value={kind} onChange={(e) => setKind(e.target.value)}>
           <option value="">Pick a kind</option>
           {kinds.map((k) => <option key={k} value={k}>{k}</option>)}
         </Select>
       )}</Field>
       <Field label="Area">{(f) => (
-        <Select {...f} value={areaValue} onChange={(e) => setArea(e.target.value)}>
+        <Select {...fieldProps(f)} value={areaValue} onChange={(e) => setArea(e.target.value)}>
           {(plant?.areas ?? []).map((a) => <option key={a} value={a}>{a}</option>)}
         </Select>
       )}</Field>
       <Field label="Line">{(f) => (
-        <Select {...f} value={lineValue} onChange={(e) => setLine(e.target.value)}>
+        <Select {...fieldProps(f)} value={lineValue} onChange={(e) => setLine(e.target.value)}>
           {(plant?.lines ?? []).map((l) => <option key={l} value={l}>{l}</option>)}
         </Select>
       )}</Field>

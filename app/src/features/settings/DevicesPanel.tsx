@@ -7,7 +7,7 @@ import type { Density } from "@/lib/api/types";
 import { fmtAgo, fmtDate } from "@/lib/format";
 import { densityInfo, deviceKindLabel } from "@/lib/labels";
 import { Button, HoldButton, Input, Pill, Select } from "@/ui/atoms";
-import { DataTable, ErrorState, Field, LoadingRows, Sheet } from "@/ui/cells";
+import { DataTable, ErrorState, Field, fieldProps, LoadingRows, Sheet } from "@/ui/cells";
 
 /** Phones, shared terminals and personal computers, and the badges that open the terminals (§15.11, ADR-A39). */
 export function DevicesPanel() {
@@ -76,10 +76,10 @@ function EnrolForm({ onDone }: { onDone: () => void }) {
         </>
       ) : (
         <>
-          <Field label="Name">{(f) => <Input {...f} value={name} onChange={(e) => setName(e.target.value)} />}</Field>
-          <Field label="Area">{(f) => <Input {...f} value={area} onChange={(e) => setArea(e.target.value)} />}</Field>
+          <Field label="Name">{(f) => <Input {...fieldProps(f)} value={name} onChange={(e) => setName(e.target.value)} />}</Field>
+          <Field label="Area">{(f) => <Input {...fieldProps(f)} value={area} onChange={(e) => setArea(e.target.value)} />}</Field>
           <Field label="Density" help={densityInfo[density].help}>{(f) => (
-            <Select {...f} value={density} onChange={(e) => setDensity(e.target.value as Density)}>
+            <Select {...fieldProps(f)} value={density} onChange={(e) => setDensity(e.target.value as Density)}>
               {(["workshop", "panel", "wall"] as const).map((d) => <option key={d} value={d}>{densityInfo[d].label}</option>)}
             </Select>
           )}</Field>

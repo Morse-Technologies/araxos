@@ -68,7 +68,7 @@ export function BadgePin({ terminalId, onSignedIn, title = "Scan your badge" }: 
       </div>
       {error && <p role="alert" className="text-body text-negative">{error}</p>}
       <div className="grid grid-cols-3 gap-3">
-        {KEYS.map((k, i) => k === "" ? <span key={i} /> : (
+        {KEYS.map((k, i) => k === "" ? <span key={`blank-${i}`} /> : (
           <button key={k} type="button" disabled={login.isPending} onClick={() => press(k)} aria-label={k === "del" ? "Delete" : k}
             className="grid size-16 place-items-center rounded-card border border-control text-title font-medium num transition-[background-color,transform] duration-[var(--dur-1)] hover:bg-raised active:scale-[0.96]">
             {k === "del" ? <Delete className="size-6" /> : k}

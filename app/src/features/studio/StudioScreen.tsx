@@ -10,7 +10,7 @@ import type { DryRun, Procedure, ProcedureVersion, Step } from "@/lib/api/types"
 import { cn } from "@/lib/cn";
 import { fmtAgo } from "@/lib/format";
 import { Band, Button, HoldButton, Input, Pill, Select, buttonStyles } from "@/ui/atoms";
-import { EmptyState, ErrorState, Field, LoadingRows, Segmented, Sheet, Tabs, VersionPill } from "@/ui/cells";
+import { EmptyState, ErrorState, Field, fieldProps, LoadingRows, Segmented, Sheet, Tabs, VersionPill } from "@/ui/cells";
 import { SplitLayout } from "@/ui/templates/ShellLayout";
 import { BranchGraph } from "./BranchGraph";
 import { DiffView } from "./DiffView";
@@ -173,7 +173,7 @@ function ImportSheet({ open, onOpenChange, onDone }: { open: boolean; onOpenChan
   return (
     <Sheet open={open} onOpenChange={onOpenChange} title="Import a PDF" description="Araxos reads it on the plant server and drafts steps that cite their pages.">
       <div className="flex flex-col gap-4 px-5 py-4">
-        <Field label="Manual or work instruction" help="PDF up to 200 pages.">{(f) => <Input {...f} type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files?.[0]?.name ?? "")} />}</Field>
+        <Field label="Manual or work instruction" help="PDF up to 200 pages.">{(f) => <Input {...fieldProps(f)} type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files?.[0]?.name ?? "")} />}</Field>
         <Button variant="primary" disabled={busy} onClick={() => { setBusy(true); window.setTimeout(() => { setBusy(false); toast.success("Draft ready", { description: `${file || "Mixer manual M-40.pdf"}: 6 steps with citations. Review every one.` }); onDone(); }, 900); }}>
           {busy ? "Reading…" : "Draft the steps"}
         </Button>

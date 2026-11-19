@@ -26,3 +26,8 @@ export function Field({
     </div>
   );
 }
+
+/** The ids a control spreads: `<Input {...fieldProps(f)} />`. */
+export const fieldProps = (f: { id: string; describedBy?: string; invalid: boolean }) => ({
+  id: f.id, "aria-describedby": f.describedBy, "aria-invalid": f.invalid || undefined,
+});

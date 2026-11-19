@@ -6,7 +6,7 @@ import { useAccept, useCase, useCreateIncident, usePropose } from "@/features/ho
 import type { Case, Proposal, Severity } from "@/lib/api/types";
 import { ABSTAIN_TEXT, routeLabel, severityLabel, SEVERITY_ORDER } from "@/lib/labels";
 import { Button, HoldButton, Select, Spinner, Textarea } from "@/ui/atoms";
-import { CitationChip, ConfidenceGlyph, Field, PageHeader, Segmented, Steps } from "@/ui/cells";
+import { CitationChip, ConfidenceGlyph, Field, fieldProps, PageHeader, Segmented, Steps } from "@/ui/cells";
 import { Canvas } from "@/ui/templates/ShellLayout";
 import { showProblem, useLookups, versionIdOf } from "./shared";
 
@@ -35,13 +35,13 @@ function Describe({ onCreated }: { onCreated: (c: Case) => void }) {
   return (
     <div className="flex flex-col gap-5" data-compact>
       <Field label="Machine" help="Scan its QR on a phone; here, pick it from the list.">{(f) => (
-        <Select {...f} value={machineId} onChange={(e) => setMachine(e.target.value)}>
+        <Select {...fieldProps(f)} value={machineId} onChange={(e) => setMachine(e.target.value)}>
           <option value="">Choose a machine</option>
           {look.machines.map((m) => <option key={m.id} value={m.id}>{m.code} · {m.name} · {m.area}</option>)}
         </Select>
       )}</Field>
       <Field label="What is happening?" help="In your words. The engine reads it, nobody grades it.">{(f) => (
-        <Textarea {...f} rows={4} value={symptom} onChange={(e) => setSymptom(e.target.value)} placeholder="Drive-end bearing noise and heat on the reducer" />
+        <Textarea {...fieldProps(f)} rows={4} value={symptom} onChange={(e) => setSymptom(e.target.value)} placeholder="Drive-end bearing noise and heat on the reducer" />
       )}</Field>
       <div className="flex flex-col gap-2">
         <span className="text-body font-medium">Urgency</span>
@@ -113,7 +113,7 @@ function ProposalStep({ c }: { c: Case }) {
         <section className="flex flex-wrap items-end gap-3">
           <div className="w-80">
             <Field label="Or pick another approved procedure">{(f) => (
-              <Select {...f} value={other} onChange={(e) => setOther(e.target.value)}>
+              <Select {...fieldProps(f)} value={other} onChange={(e) => setOther(e.target.value)}>
                 <option value="">Choose</option>
                 {approved.map((x) => <option key={x.id} value={versionIdOf(x, x.approved) ?? ""}>{x.code} v{x.approved} · {x.title}</option>)}
               </Select>

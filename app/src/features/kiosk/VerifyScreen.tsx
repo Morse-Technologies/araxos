@@ -10,7 +10,7 @@ import { Problem, type Lock, type User } from "@/lib/api";
 import { fmtTime } from "@/lib/format";
 import { lockStateLabel } from "@/lib/labels";
 import { Avatar, Button, HoldButton, Input, Pill, buttonStyles } from "@/ui/atoms";
-import { EmptyState, Field } from "@/ui/cells";
+import { EmptyState, Field, fieldProps } from "@/ui/cells";
 import { BadgePin } from "./BadgePin";
 import { KioskFrame } from "./KioskFrame";
 
@@ -92,7 +92,7 @@ function Confirm({ lock, removal, verifier, terminalId, onSignOut }: { lock: Loc
       <p className="flex items-center gap-2 text-body"><Avatar name={verifier.name} hue={verifier.hue} size={24} />Signed in as {verifier.name}<button type="button" className="ml-auto text-small text-muted underline" onClick={onSignOut}>Not you?</button></p>
       <Field label={removal ? "Check the lock is off and scan it" : "Go to the point, check the lock and scan it"} help="Scan the code on the lock body, not the case.">{(f) => (
         <div className="flex flex-wrap gap-2">
-          <Input {...f} value={scanned} onChange={(e) => { setScanned(e.target.value.toUpperCase()); setProblem(null); }} placeholder={lock.id} className="w-40 font-mono" />
+          <Input {...fieldProps(f)} value={scanned} onChange={(e) => { setScanned(e.target.value.toUpperCase()); setProblem(null); }} placeholder={lock.id} className="w-40 font-mono" />
           <Button variant="outline" onClick={() => { setScanned(lock.id); setProblem(null); }}><ScanLine />Scan {lock.id}</Button>
           <Button variant="ghost" onClick={() => { setScanned("L-99"); setProblem(null); }}>Scan another lock (demo)</Button>
         </div>

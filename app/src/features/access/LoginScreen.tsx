@@ -11,9 +11,9 @@ import { CODE_LENGTH, CodeInput } from "./CodeInput";
 
 const Aside = (
   <div className="flex flex-col gap-2">
-    <p className="text-small text-muted">Open alert</p>
-    <p className="font-medium">EXT-01 · Watch · Possible outer race defect</p>
-    <SeverityGlyph severity="medium" />
+    <p className="text-small text-muted">In progress · step 3 of 8</p>
+    <p className="font-medium">EXT-04 · Remove the reducer cover</p>
+    <SeverityGlyph severity="high" />
   </div>
 );
 
@@ -90,7 +90,7 @@ function PasswordStep({ email, password, busy, error, onEmail, onPassword, onSub
   return (
     <>
       <h1 className="text-title font-medium">Sign in to Araxos</h1>
-      <p className="mt-1 text-body text-muted">Signals, sound and images stay on your plant&apos;s server.</p>
+      <p className="mt-1 text-body text-muted">Cases, photos and dictation stay on your plant&apos;s server.</p>
       <form onSubmit={onSubmit} className="mt-7 flex flex-col gap-4" noValidate>
         <Field label="Email">
           {({ id }) => (

@@ -7,7 +7,7 @@ import type { Step, StepKind } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { stepKindLabel } from "@/lib/labels";
 import { Button, Input, Select, Textarea } from "@/ui/atoms";
-import { Field, SafetyTag, stepKindIcon } from "@/ui/cells";
+import { Field, fieldProps, SafetyTag, stepKindIcon } from "@/ui/cells";
 
 const KINDS = Object.keys(stepKindLabel) as StepKind[];
 
@@ -49,17 +49,17 @@ export function StepsEditor({ steps, onChange, selected, onSelect, readOnly }: {
             {!readOnly && <Button variant="danger" size="sm" onClick={remove} disabled={steps.length < 2}><Trash2 />Remove</Button>}
           </div>
           <fieldset disabled={readOnly} className="flex flex-col gap-4">
-            <Field label="Title">{(f) => <Input {...f} value={step.title} onChange={(e) => update({ title: e.target.value })} />}</Field>
-            <Field label="What to do">{(f) => <Textarea {...f} rows={3} value={step.body} onChange={(e) => update({ body: e.target.value })} />}</Field>
+            <Field label="Title">{(f) => <Input {...fieldProps(f)} value={step.title} onChange={(e) => update({ title: e.target.value })} />}</Field>
+            <Field label="What to do">{(f) => <Textarea {...fieldProps(f)} rows={3} value={step.body} onChange={(e) => update({ body: e.target.value })} />}</Field>
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Kind">{(f) => <Select {...f} value={step.kind} onChange={(e) => update({ kind: e.target.value as StepKind })}>{KINDS.map((k) => <option key={k} value={k}>{stepKindLabel[k]}</option>)}</Select>}</Field>
-              <Field label="Minutes">{(f) => <Input {...f} type="number" min={1} value={step.minutes} onChange={(e) => update({ minutes: Number(e.target.value) })} />}</Field>
+              <Field label="Kind">{(f) => <Select {...fieldProps(f)} value={step.kind} onChange={(e) => update({ kind: e.target.value as StepKind })}>{KINDS.map((k) => <option key={k} value={k}>{stepKindLabel[k]}</option>)}</Select>}</Field>
+              <Field label="Minutes">{(f) => <Input {...fieldProps(f)} type="number" min={1} value={step.minutes} onChange={(e) => update({ minutes: Number(e.target.value) })} />}</Field>
             </div>
             {step.range && (
               <div className="grid grid-cols-3 gap-4">
-                <Field label="Min">{(f) => <Input {...f} inputMode="decimal" value={step.range!.min} onChange={(e) => update({ range: { ...step.range!, min: Number(e.target.value) } })} />}</Field>
-                <Field label="Max">{(f) => <Input {...f} inputMode="decimal" value={step.range!.max} onChange={(e) => update({ range: { ...step.range!, max: Number(e.target.value) } })} />}</Field>
-                <Field label="Unit">{(f) => <Input {...f} value={step.range!.unit} onChange={(e) => update({ range: { ...step.range!, unit: e.target.value } })} />}</Field>
+                <Field label="Min">{(f) => <Input {...fieldProps(f)} inputMode="decimal" value={step.range!.min} onChange={(e) => update({ range: { ...step.range!, min: Number(e.target.value) } })} />}</Field>
+                <Field label="Max">{(f) => <Input {...fieldProps(f)} inputMode="decimal" value={step.range!.max} onChange={(e) => update({ range: { ...step.range!, max: Number(e.target.value) } })} />}</Field>
+                <Field label="Unit">{(f) => <Input {...fieldProps(f)} value={step.range!.unit} onChange={(e) => update({ range: { ...step.range!, unit: e.target.value } })} />}</Field>
               </div>
             )}
             {step.lock && (

@@ -9,7 +9,7 @@ import type { Case, Lock, Step, StepRun } from "@/lib/api/types";
 import { fmtTime } from "@/lib/format";
 import { lockStateLabel } from "@/lib/labels";
 import { Button, HoldButton, Input, Pill } from "@/ui/atoms";
-import { Field } from "@/ui/cells";
+import { Field, fieldProps } from "@/ui/cells";
 
 /** Locks the panel takes from the station's lock board in the mock. */
 const FREE_LOCKS = ["L-21", "L-22", "L-23"];
@@ -46,13 +46,13 @@ export function SafetyStep({ c, step, run, lock, deviceId, onPhoto, current }: {
         <ol className="flex flex-col gap-4">
           <li className="flex flex-col gap-2">
             <Field label="1. Scan the isolation point" help={`The tag on ${spec.point} carries a QR. A barcode reader types it here.`}>{(f) => (
-              <div className="flex gap-2"><Input {...f} value={point} onChange={(e) => setPoint(e.target.value.toUpperCase())} placeholder={spec.point} className="font-mono" />
+              <div className="flex gap-2"><Input {...fieldProps(f)} value={point} onChange={(e) => setPoint(e.target.value.toUpperCase())} placeholder={spec.point} className="font-mono" />
                 <Button variant="outline" onClick={() => setPoint(spec.point)}><ScanLine />Scan</Button></div>
             )}</Field>
           </li>
           <li className="flex flex-col gap-2">
             <Field label="2. Fit your lock and scan it" help="Your personal lock from the board.">{(f) => (
-              <div className="flex gap-2"><Input {...f} value={lockId} onChange={(e) => setLockId(e.target.value.toUpperCase())} placeholder="L-21" className="font-mono" />
+              <div className="flex gap-2"><Input {...fieldProps(f)} value={lockId} onChange={(e) => setLockId(e.target.value.toUpperCase())} placeholder="L-21" className="font-mono" />
                 <Button variant="outline" onClick={() => setLockId(FREE_LOCKS[0])}><ScanLine />Scan</Button></div>
             )}</Field>
           </li>

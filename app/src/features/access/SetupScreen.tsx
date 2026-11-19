@@ -111,7 +111,7 @@ function AdminStep({ form, patch }: { form: Form; patch: (p: Partial<Form>) => v
   const short = form.password.length > 0 && form.password.length < MIN_PASSWORD_LEN;
   return (
     <>
-      <Title title="Create the administrator">This account manages people, sources and the licence.</Title>
+      <Title title="Create the administrator">This account manages people, devices, badges and the licence.</Title>
       <div className="mt-6 flex flex-col gap-4">
         <Field label="Full name">
           {({ id }) => <Input id={id} value={form.name} onChange={(e) => patch({ name: e.target.value })} autoComplete="name" />}

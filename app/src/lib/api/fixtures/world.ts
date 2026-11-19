@@ -16,7 +16,7 @@ export const NORTH = PLANTS[0].id;
 
 type U = [id: string, name: string, roles: User["roles"], area: string, hue: number, badge: boolean];
 const U_ROWS: U[] = [
-  ["u-aruiz", "Ana Ruiz", ["engineer", "lead"], "Maintenance engineering", 168, false],
+  ["u-aruiz", "Ana Ruiz", ["engineer", "lead"], "Maintenance engineering", 168, true],
   ["u-jgarcia", "Javier García", ["technician"], "Mechanical maintenance", 24, true],
   ["u-nrey", "Noelia Rey", ["technician"], "Mechanical maintenance", 300, true],
   ["u-dcosta", "Diego Costa", ["technician"], "Electrical maintenance", 210, true],

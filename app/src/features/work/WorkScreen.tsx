@@ -35,7 +35,7 @@ function useWorkQueues(me: Me, cases: Case[]) {
   return {
     continueCase,
     otherMine: mine.filter((c) => c.id !== continueCase?.id),
-    unassigned: cases.filter((c) => isOpen(c) && !c.assigneeId && c.area === me.area).sort(bySeverity),
+    unassigned: cases.filter((c) => isOpen(c) && !c.assigneeId).sort(bySeverity),
     canVerify,
     waitingLocks,
   };
@@ -123,8 +123,8 @@ function UnassignedList({ rows, me, machineCode }: { rows: Case[]; me: Me; machi
   );
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-section font-medium">Unassigned in your area</h2>
-      {!rows.length ? <EmptyState>No unassigned open cases in your area.</EmptyState> : (
+      <h2 className="text-section font-medium">Unassigned</h2>
+      {!rows.length ? <EmptyState>No open case is waiting for someone.</EmptyState> : (
         <ul className="flex flex-col divide-y divide-rule rounded-card border border-border">
           {rows.map((c) => (
             <li key={c.id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-body">
