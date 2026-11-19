@@ -303,7 +303,24 @@ export const mockApi: AraxosApi = {
   versionsOf: (pid) => later(w().versions.filter((v) => v.procedureId === pid).sort((a, b) => b.n - a.n)),
   diff: (id, against) => later(diff(id, against)),
   dryRun: (id, choices) => later(dryRun(id, choices), THINK_MS),
+  createDraft: (fromId, authorId) => {
+    const from = findVersion(fromId);
+    if (!from) return fail("procedures/unknown_version", "Unknown version.", 404);
+    const open = w().versions.find((x) => x.procedureId === from.procedureId && ["draft", "review", "safety_review"].includes(x.status));
+    if (open) return fail("procedures/draft_exists", `v${open.n} is already open for this procedure.`);
+    const n = Math.max(...w().versions.filter((x) => x.procedureId === from.procedureId).map((x) => x.n)) + 1;
+    const v: ProcedureVersion = { ...structuredClone(from), id: `${from.id.replace(/-\d+$/, "")}-${n}`, n, status: "draft", authorId, lastEditorId: authorId, createdAt: nowIso(), approvedAt: null, changeNote: "", signatures: [], comments: [] };
+    w().versions.push(v);
+    save();
+    return later(v);
+  },
   saveDraft,
+  comment: (id, stepKey, text) => {
+    const v = findVersion(id)!;
+    v.comments.push({ stepKey, author: actor().name, at: nowIso(), text });
+    save();
+    return later(v);
+  },
   submit,
   sign,
   returnDraft: (id, reason) => {

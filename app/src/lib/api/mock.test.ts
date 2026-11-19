@@ -81,3 +81,12 @@ describe("terminal sign-in", () => {
     expect(await problemOf(api.badgeLogin({ terminalId: "t-taller2", badge: null, userId: "u-mlosada", pin: "9999" }))).toBe("auth/bad_pin");
   });
 });
+
+describe("drafts", () => {
+  it("opens one draft at a time from the approved version", async () => {
+    const v = await api.createDraft("pv-cmp-001-5", "u-aruiz");
+    expect(v).toMatchObject({ n: 6, status: "draft", signatures: [], id: "pv-cmp-001-6" });
+    await expect(api.createDraft("pv-cmp-001-5", "u-aruiz")).rejects.toMatchObject({ type: "procedures/draft_exists" });
+    await expect(api.createDraft("pv-ext-003-3", "u-aruiz")).rejects.toMatchObject({ type: "procedures/draft_exists" });
+  });
+});

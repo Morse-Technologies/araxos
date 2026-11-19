@@ -58,6 +58,8 @@ export const useVerifyLock = () => useWrite((v: LockVerify) => api.verifyLock(v)
 export const useRequestRemoval = () => useWrite((lockId: Id) => api.requestRemoval(lockId), CASE_KEYS);
 
 const PROC_KEYS = ["procedures", "version", "versions", "diff", "machines"];
+export const useCreateDraft = () => useWrite((v: { fromId: Id; authorId: Id }) => api.createDraft(v.fromId, v.authorId), PROC_KEYS);
+export const useComment = () => useWrite((v: { versionId: Id; stepKey: string; text: string }) => api.comment(v.versionId, v.stepKey, v.text), PROC_KEYS);
 export const useSaveDraft = () => useWrite((v: { versionId: Id; steps: Step[]; editorId: Id }) => api.saveDraft(v.versionId, v.steps, v.editorId), PROC_KEYS);
 export const useSubmit = () => useWrite((id: Id) => api.submit(id), PROC_KEYS);
 export const useSign = () => useWrite((v: { versionId: Id; sha256: string; role: SignatureRole; reauth: Reauth }) => api.sign(v), PROC_KEYS);

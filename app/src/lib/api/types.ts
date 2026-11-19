@@ -183,7 +183,10 @@ export type AraxosApi = {
   versionsOf(procedureId: Id): Promise<ProcedureVersion[]>;
   diff(versionId: Id, againstId: Id): Promise<DiffRow[]>;
   dryRun(versionId: Id, choices: Record<string, string>): Promise<DryRun>;
+  /** A new draft from a version (normally the approved one); only one open draft per procedure. */
+  createDraft(fromVersionId: Id, authorId: Id): Promise<ProcedureVersion>;
   saveDraft(versionId: Id, steps: Step[], editorId: Id): Promise<ProcedureVersion>;
+  comment(versionId: Id, stepKey: string, text: string): Promise<ProcedureVersion>;
   submit(versionId: Id): Promise<ProcedureVersion>;
   sign(v: { versionId: Id; sha256: string; role: SignatureRole; reauth: Reauth }): Promise<ProcedureVersion>;
   returnDraft(versionId: Id, reason: string): Promise<ProcedureVersion>;
