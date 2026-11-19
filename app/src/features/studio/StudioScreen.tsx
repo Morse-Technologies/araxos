@@ -8,9 +8,9 @@ import { showProblem, versionIdOf } from "@/features/cases/shared";
 import { useCreateDraft, useDryRun, useMe, useProcedures, useSaveDraft, useSubmit, useVersion, useVersionsOf } from "@/features/hooks";
 import type { DryRun, Procedure, ProcedureVersion, Step } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { fmtAgo } from "@/lib/format";
+import { fmtAgo, fmtTime } from "@/lib/format";
 import { Band, Button, HoldButton, Input, Pill, Select, buttonStyles } from "@/ui/atoms";
-import { EmptyState, ErrorState, Field, fieldProps, LoadingRows, Segmented, Sheet, Tabs, VersionPill } from "@/ui/cells";
+import { EmptyState, ErrorState, Field, fieldProps, LoadingRows, Modal, Segmented, Sheet, Tabs, VersionPill } from "@/ui/cells";
 import { SplitLayout } from "@/ui/templates/ShellLayout";
 import { BranchGraph } from "./BranchGraph";
 import { DiffView } from "./DiffView";
@@ -82,6 +82,7 @@ function Editor({ p, versionId, onPick }: { p: Procedure; versionId: string; onP
   const [steps, setSteps] = useState<Step[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const save = useSaveDraft();
+  const [confirmSave, setConfirmSave] = useState(false);
   const submit = useSubmit();
   const create = useCreateDraft();
   if (isPending) return <LoadingRows rows={8} className="p-8" />;
@@ -91,7 +92,9 @@ function Editor({ p, versionId, onPick }: { p: Procedure; versionId: string; onP
   const editable = v.status === "draft" || v.status === "review" || v.status === "safety_review";
   const approved = versions.data?.find((x) => x.status === "approved" && x.id !== v.id) ?? versions.data?.find((x) => x.n === v.n - 1);
   const persist = () => save.mutateAsync({ versionId: v.id, steps: working, editorId: me!.id }).then((x) => { setSteps(null); return x; });
-  const onSave = () => persist().then((x) => toast.success("Draft saved", { description: v.signatures.length ? `The body changed (sha256 ${x.bodySha256.slice(0, 8)}…), so its signatures were cleared.` : `sha256 ${x.bodySha256.slice(0, 8)}…` })).catch(showProblem);
+  const inReview = v.status === "review" || v.status === "safety_review";
+  const onSave = () => (inReview ? setConfirmSave(true) : doSave());
+  const doSave = () => persist().then((x) => toast.success(inReview ? `v${v.n} is back in draft` : "Draft saved", { description: v.signatures.length ? `The body changed (sha256 ${x.bodySha256.slice(0, 8)}…), so its signatures were cleared.` : `sha256 ${x.bodySha256.slice(0, 8)}…` })).catch(showProblem);
   const onSubmit = () => (dirty ? persist() : Promise.resolve(v)).then(() => submit.mutateAsync(v.id))
     .then((x) => toast.success("Sent to review", { description: x.status === "safety_review" ? "It has safety steps: an engineer and a safety approver both have to sign." : "An engineer has to sign it." })).catch(showProblem);
 
@@ -122,11 +125,13 @@ function Editor({ p, versionId, onPick }: { p: Procedure; versionId: string; onP
           {(v.status === "review" || v.status === "safety_review") && <Link href={`/review?v=${v.id}`} className={buttonStyles({ variant: "primary" })}><Signature />Open in Review</Link>}
         </div>
       </header>
-      {editable && v.signatures.length > 0 && (
+      {inReview && (
         <p role="note" className="rounded-card bg-[var(--pill-warning-bg)] px-4 py-3 text-body text-[var(--pill-warning-ink)]">
-          {v.signatures.length === 1 ? "One signature is" : `${v.signatures.length} signatures are`} on this exact text. Saving any change returns it to draft and clears them.
+          {v.signatures.length === 0 ? "This version is in review. Saving any change returns it to draft."
+            : `${v.signatures.length === 1 ? "One signature is" : `${v.signatures.length} signatures are`} on this exact text. Saving any change returns it to draft and invalidates ${v.signatures.length === 1 ? "it" : "them"}.`}
         </p>
       )}
+      <ConfirmEditInReview open={confirmSave} onOpenChange={setConfirmSave} v={v} pending={save.isPending} onConfirm={() => { setConfirmSave(false); void doSave(); }} />
       <Tabs label="Editor views" tabs={TABS} value={tab} onChange={setTab} />
       <div key={tab} className="animate-enter">
         {tab === "steps" && <StepsEditor steps={working} onChange={setSteps} selected={selected} onSelect={setSelected} readOnly={!editable} />}
@@ -179,5 +184,33 @@ function ImportSheet({ open, onOpenChange, onDone }: { open: boolean; onOpenChan
         </Button>
       </div>
     </Sheet>
+  );
+}
+
+const SIGNATURE_ROLE: Record<ProcedureVersion["signatures"][number]["role"], string> = { engineering: "engineering", safety: "safety" };
+
+/** Editing a version in review is allowed, but it changes the hash: say exactly which signatures stop counting. */
+function ConfirmEditInReview({ open, onOpenChange, v, pending, onConfirm }: {
+  open: boolean; onOpenChange: (o: boolean) => void; v: ProcedureVersion; pending: boolean; onConfirm: () => void;
+}) {
+  const n = v.signatures.length;
+  return (
+    <Modal open={open} onOpenChange={onOpenChange} title={`Save changes to v${v.n} in review?`}>
+      <div className="flex flex-col gap-4 px-5 pt-3 pb-5 text-body">
+        <p>Saving changes the signed text, so v{v.n} goes back to draft{n ? " and these signatures are invalidated:" : ". It has no signatures yet."}</p>
+        {n > 0 && (
+          <ul className="flex flex-col gap-1 rounded-card border border-border px-4 py-3">
+            {v.signatures.map((s) => <li key={`${s.role}-${s.userId}`}><span className="font-medium">{s.name}</span> <span className="text-muted">· {SIGNATURE_ROLE[s.role]} · {fmtTime(s.at)}</span></li>)}
+          </ul>
+        )}
+        <p className="text-muted">You will have to send it to review again, and {n ? "they will have to sign the new text again" : "every signature starts from zero"}.</p>
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Keep editing</Button>
+          <Button variant="danger" disabled={pending} onClick={onConfirm} data-main-action>
+            {n ? `Save and invalidate ${n === 1 ? "1 signature" : `${n} signatures`}` : "Save and return to draft"}
+          </Button>
+        </div>
+      </div>
+    </Modal>
   );
 }

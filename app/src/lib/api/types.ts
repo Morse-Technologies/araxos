@@ -139,7 +139,7 @@ export type License = { plan: "Pro"; holder: string; expires: Iso; terminals: { 
 /* Audit (§21) ---------------------------------------------------------------------------------- */
 export type AuditObjectKind = "session" | "case" | "step" | "procedure" | "lock" | "knowledge" | "evidence" | "mcp" | "device" | "user" | "audit";
 export type AuditAction =
-  | "auth.login" | "auth.badge" | "case.open" | "case.close" | "step.confirm" | "step.skip" | "procedure.submit" | "procedure.sign"
+  | "auth.login" | "auth.badge" | "case.open" | "case.close" | "step.confirm" | "step.skip" | "procedure.edit" | "procedure.submit" | "procedure.sign"
   | "procedure.approve" | "procedure.retire" | "lock.apply" | "lock.verify" | "lock.remove" | "knowledge.capture" | "knowledge.accept"
   | "knowledge.reject" | "evidence.view" | "mcp.call" | "mcp.approve" | "device.enroll" | "device.revoke" | "badge.revoke"
   | "user.role" | "threshold.change" | "audit.export";

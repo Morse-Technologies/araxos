@@ -32,6 +32,14 @@ describe("double-signature approval (§29.4)", () => {
     expect(edited.signatures).toHaveLength(0);
     expect(edited.status).toBe("draft");
   });
+  it("editing a version in review records which signatures it invalidated, and the old hash can no longer be signed", async () => {
+    const v = (await api.version("pv-ext-003-4"))!;
+    await api.saveDraft(v.id, v.steps.map((s) => (s.key === "s3" ? { ...s, minutes: 20 } : s)), "u-lferreiro");
+    const last = (await api.audit("pl-north")).find((e) => e.action === "procedure.edit")!;
+    expect(last).toMatchObject({ action: "procedure.edit", object: "PROC-EXT-RED-003 v4" });
+    expect(last.detail).toContain("Ana Ruiz (engineering)");
+    expect(await problemOf(api.sign({ versionId: v.id, sha256: v.bodySha256, role: "safety", reauth: reauth("u-pvidal") }))).not.toBeNull();
+  });
 });
 
 describe("lockout verification by a second person", () => {

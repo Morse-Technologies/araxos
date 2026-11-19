@@ -135,6 +135,29 @@ test("a safety procedure is approved only with an engineer's and a safety approv
   await expect(page.getByText("Approved", { exact: true }).first()).toBeVisible();
 });
 
+test("editing a version in review asks first, then invalidates its signatures", async ({ page }) => {
+  await page.goto("/studio?id=pr-ext-003&v=pv-ext-003-4&as=u-lferreiro");
+  await expect(page.getByText("1 of 2 signatures")).toBeVisible();
+  await expect(page.getByRole("note")).toContainText("invalidates it");
+  await page.getByLabel("Minutes").fill("25");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+
+  const dialog = page.getByRole("dialog", { name: "Save changes to v4 in review?" });
+  await expect(dialog).toContainText("Ana Ruiz");
+  await dialog.getByRole("button", { name: "Keep editing" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByText("1 of 2 signatures")).toBeVisible();
+
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Save and invalidate 1 signature" }).click();
+  await expect(page.getByText("v4 is back in draft")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Hold to send to review" })).toBeVisible();
+  await expect(page.getByText("1 of 2 signatures")).toBeHidden();
+
+  await page.goto("/audit?as=u-ccampos");
+  await expect(page.getByText("Edited version in review").first()).toBeVisible();
+});
+
 test("the theme toggle switches to dark and back", async ({ page }) => {
   await page.goto("/dashboard");
   const html = page.locator("html");

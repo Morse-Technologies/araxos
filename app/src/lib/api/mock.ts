@@ -189,10 +189,14 @@ function dryRun(versionId: Id, choices: Record<string, string>) {
 function saveDraft(versionId: Id, steps: Step[], editorId: Id) {
   const v = findVersion(versionId);
   if (!v || v.status === "approved" || v.status === "retired") return fail("procedures/not_editable", "Only drafts can be edited.");
-  const hadSignatures = v.signatures.length > 0;
+  const wasInReview = v.status === "review" || v.status === "safety_review";
+  const dropped = v.signatures.map((s) => `${s.name} (${s.role})`);
   Object.assign(v, { steps: steps.map((s, i) => ({ ...s, n: i + 1 })), lastEditorId: editorId, signatures: [], status: "draft" });
   v.bodySha256 = bodySha(v.steps);
-  if (hadSignatures) audit({ action: "procedure.submit", objectKind: "procedure", object: versionLabel(v), detail: "Edited: the hash changed and the signatures were invalidated" });
+  if (wasInReview) audit({
+    action: "procedure.edit", objectKind: "procedure", object: versionLabel(v),
+    detail: dropped.length ? `Edited in review: the hash changed, back to draft, signatures invalidated: ${dropped.join(", ")}` : "Edited in review: the hash changed, back to draft",
+  });
   save();
   return later(v);
 }

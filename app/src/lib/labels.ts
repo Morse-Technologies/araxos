@@ -48,7 +48,7 @@ export const deviceKindLabel: Record<DeviceKind, string> = { phone: "Phone", ter
 
 export const auditActionLabel: Record<AuditAction, string> = {
   "auth.login": "Signed in", "auth.badge": "Badge sign-in", "case.open": "Opened case", "case.close": "Closed case", "step.confirm": "Confirmed step",
-  "step.skip": "Skipped step", "procedure.submit": "Sent to review", "procedure.sign": "Signed version", "procedure.approve": "Approved version",
+  "step.skip": "Skipped step", "procedure.edit": "Edited version in review", "procedure.submit": "Sent to review", "procedure.sign": "Signed version", "procedure.approve": "Approved version",
   "procedure.retire": "Retired version", "lock.apply": "Applied lock", "lock.verify": "Verified lock", "lock.remove": "Removed lock",
   "knowledge.capture": "Captured Saber", "knowledge.accept": "Took Saber", "knowledge.reject": "Declined Saber", "evidence.view": "Viewed evidence",
   "mcp.call": "MCP call", "mcp.approve": "Decided MCP proposal", "device.enroll": "Enrolled device", "device.revoke": "Revoked device",
