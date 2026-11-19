@@ -122,7 +122,7 @@ function applyLock(v: { caseId: Id; stepKey: string; point: string; lockId: stri
   if (lockOf(v.lockId) && lockOf(v.lockId)!.state !== "removed") return fail("safety/lock_in_use", `Lock ${v.lockId} is already on another point.`);
   const lock: Lock = {
     id: v.lockId, caseId: c.id, machineId: c.machineId, stepKey: v.stepKey, point: v.point, state: "applied", appliedBy: actor().id, appliedAt: nowIso(),
-    appliedDevice: v.deviceId, photo: true, verifiedBy: null, verifiedAt: null, verifiedDevice: null, removedAt: null, removalVerifiedBy: null, removalVerifiedAt: null,
+    appliedDevice: v.deviceId, photo: true, photoThumb: c.steps.find((s) => s.key === v.stepKey)?.evidence.filter((e) => e.kind === "photo").at(-1)?.thumb ?? null, verifiedBy: null, verifiedAt: null, verifiedDevice: null, removedAt: null, removalVerifiedBy: null, removalVerifiedAt: null,
   };
   w().locks = [...w().locks.filter((l) => l.id !== v.lockId), lock];
   c.status = "blocked";

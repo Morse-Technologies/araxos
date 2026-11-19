@@ -47,6 +47,7 @@ async function applyL21(page: Page) {
   await page.getByRole("button", { name: "Scan" }).nth(1).click();
   await page.getByRole("button", { name: "Take photo" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Take photo" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Use photo" }).click();
   await expect(page.getByText("Taken")).toBeVisible();
   await hold(page, page.getByRole("button", { name: "Hold to apply the lock" }));
   await expect(page.getByText("Waiting for a second person")).toBeVisible();
@@ -61,6 +62,7 @@ test("a lockout needs a second person on a second device before the work goes on
 
   // 1. The person who applied it cannot verify it.
   await other.goto("/kiosk/verify?lock=L-21&terminal=t-taller3");
+  await expect(other.getByRole("img", { name: "Photo of L-21 on Q1 as applied" })).toBeVisible();
   await badge(other, "Ana Ruiz");
   await other.getByRole("button", { name: "Scan L-21" }).click();
   await hold(other, other.getByRole("button", { name: "Hold to verify" }));
@@ -195,6 +197,42 @@ test("the run screen shows the cited manual page from the PDF with the passage h
   await manual.getByRole("button", { name: "Back to p. 47" }).click();
   await expect(manual.locator("mark.manual-cite")).toBeVisible();
 });
+
+test("photo evidence uses the real camera and keeps a thumbnail", async ({ page }) => {
+  await page.goto("/cases/c-421/run?as=u-jgarcia");
+  await page.getByRole("button", { name: "Add photo" }).click();
+  const sheet = page.getByRole("dialog");
+  await expect(sheet.getByLabel("Camera preview")).toBeVisible();
+  await expect.poll(() => sheet.getByLabel("Camera preview").evaluate((v: HTMLVideoElement) => v.videoWidth)).toBeGreaterThan(0);
+  await sheet.getByRole("button", { name: "Take photo" }).click();
+  await expect(sheet.getByRole("img", { name: "The photo you took" })).toBeVisible();
+  await sheet.getByRole("button", { name: "Retake" }).click();
+  await sheet.getByRole("button", { name: "Take photo" }).click();
+  await sheet.getByRole("button", { name: "Use photo" }).click();
+  await expect(sheet).toBeHidden();
+  const thumb = page.getByRole("complementary", { name: "Manual and evidence" }).getByRole("img", { name: "Photo of the cover removed" });
+  await expect(thumb).toBeVisible();
+  expect(await thumb.getAttribute("src")).toMatch(/^data:image\/jpeg;base64,/);
+  // The camera is released when the sheet closes.
+  expect(await page.evaluate(() => [...document.querySelectorAll("video")].some((v) => (v.srcObject as MediaStream | null)?.active))).toBe(false);
+});
+
+for (const [why, script, title] of [
+  ["permission is denied", "navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException('blocked', 'NotAllowedError'))", "Camera access is blocked"],
+  ["there is no camera", "navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException('none', 'NotFoundError'))", "No camera found"],
+  ["the page is not secure", "Object.defineProperty(window, 'isSecureContext', { get: () => false })", "The camera needs a secure connection"],
+] as const) {
+  test(`photo evidence says why when ${why}, and falls back`, async ({ page }) => {
+    await page.addInitScript(script);
+    await page.goto("/cases/c-421/run?as=u-jgarcia");
+    await page.getByRole("button", { name: "Add photo" }).click();
+    const sheet = page.getByRole("dialog");
+    await expect(sheet.getByRole("alert")).toContainText(title);
+    await expect(sheet.getByText("Attach a photo file", { exact: true })).toBeVisible();
+    await sheet.getByRole("button", { name: "Use a simulated photo (demo)" }).click();
+    await expect(page.getByText("Evidence added")).toBeVisible();
+  });
+}
 
 test("the theme toggle switches to dark and back", async ({ page }) => {
   await page.goto("/dashboard");

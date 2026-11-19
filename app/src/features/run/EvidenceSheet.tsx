@@ -1,12 +1,13 @@
 "use client";
-import { Camera, FileUp, MonitorUp, Ruler, StickyNote } from "lucide-react";
+import { FileUp, MonitorUp, Ruler, StickyNote } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAddEvidence } from "@/features/hooks";
 import type { EvidenceKind, Step } from "@/lib/api/types";
-import { Button, Halftone, Input, Textarea } from "@/ui/atoms";
+import { Button, Input, Textarea } from "@/ui/atoms";
 import { Field, fieldProps, Sheet, Tabs } from "@/ui/cells";
 import { showProblem } from "@/features/cases/shared";
+import { CameraCapture } from "./CameraCapture";
 
 export type EvidenceTab = Exclude<EvidenceKind, "note"> | "note";
 const TABS: { value: EvidenceTab; label: string }[] = [
@@ -14,7 +15,7 @@ const TABS: { value: EvidenceTab; label: string }[] = [
 ];
 
 /**
- * T5: evidence for the current step, in a 480 px sheet. On the desktop the camera is the webcam, files come from
+ * T5: evidence for the current step, in a 480 px sheet. The camera is the webcam or the terminal's camera (getUserMedia), files come from
  * disk and a screen capture records an HMI or SCADA screen. Every item is hashed on arrival.
  */
 export function EvidenceSheet({ open, onOpenChange, caseId, step, tab, onTab, by }: {
@@ -25,8 +26,8 @@ export function EvidenceSheet({ open, onOpenChange, caseId, step, tab, onTab, by
   const [value, setValue] = useState("");
   const [note, setNote] = useState("");
   const photoLabel = step.requirements.find((r) => r.kind === "photo")?.label ?? `Photo of step ${step.n}`;
-  const save = (kind: EvidenceKind, label: string, extra: { value?: number; unit?: string; inRange?: boolean } = {}) =>
-    add.mutate({ caseId, stepKey: step.key, evidence: { kind, label, by, value: extra.value ?? null, unit: extra.unit ?? null, inRange: extra.inRange ?? null } }, {
+  const save = (kind: EvidenceKind, label: string, extra: { value?: number; unit?: string; inRange?: boolean; thumb?: string } = {}) =>
+    add.mutate({ caseId, stepKey: step.key, evidence: { kind, label, by, value: extra.value ?? null, unit: extra.unit ?? null, inRange: extra.inRange ?? null, thumb: extra.thumb ?? null } }, {
       onSuccess: () => { toast.success("Evidence added", { description: label }); onOpenChange(false); setFile(""); setValue(""); setNote(""); },
       onError: showProblem,
     });
@@ -37,14 +38,8 @@ export function EvidenceSheet({ open, onOpenChange, caseId, step, tab, onTab, by
     <Sheet open={open} onOpenChange={onOpenChange} title="Add evidence" description={`Step ${step.n} · ${step.title}`}>
       <div className="flex flex-col gap-5 px-5 py-4" data-compact>
         <Tabs label="Evidence kind" tabs={TABS} value={tab} onChange={onTab} />
-        {tab === "photo" && (
-          <div className="flex flex-col gap-3">
-            <div className="relative grid aspect-[4/3] place-items-center overflow-hidden rounded-card bg-raised">
-              <Halftone className="absolute inset-0 opacity-40" />
-              <span className="relative flex items-center gap-2 text-small text-muted"><Camera className="size-4" />Webcam preview (mock)</span>
-            </div>
-            <Button variant="primary" size="lg" data-main-action onClick={() => save("photo", photoLabel)}><Camera />Take photo</Button>
-          </div>
+        {tab === "photo" && open && (
+          <CameraCapture busy={add.isPending} onUse={(thumb) => save("photo", photoLabel, { thumb })} onSimulate={() => save("photo", photoLabel)} />
         )}
         {tab === "file" && (
           <div className="flex flex-col gap-3">

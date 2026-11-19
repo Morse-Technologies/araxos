@@ -179,9 +179,13 @@ export function RunScreen({ id }: { id: string }) {
             {run.evidence.length ? (
               <ul className="flex flex-col gap-2">
                 {run.evidence.map((e) => (
-                  <li key={e.id} className="rounded-card border border-border px-3 py-2">
+                  <li key={e.id} className="flex items-start gap-3 rounded-card border border-border px-3 py-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- a local data URL thumbnail */}
+                    {e.thumb && <img src={e.thumb} alt={e.label} className="h-12 w-16 shrink-0 rounded-control object-cover" />}
+                    <div className="min-w-0">
                     <p className="text-body">{e.label}{e.value !== null && <span className={cn("num", e.inRange === false && "text-negative")}> · {e.value} {e.unit}{e.inRange === false ? " (out of range)" : ""}</span>}</p>
                     <p className="text-small text-muted">{evidenceKindLabel[e.kind]} · {e.by} · {fmtTime(e.at)}</p>
+                    </div>
                   </li>
                 ))}
               </ul>

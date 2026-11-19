@@ -69,6 +69,10 @@ export function LockSummary({ lock, removal }: { lock: Lock; removal: boolean })
     <div className="flex flex-col gap-2 rounded-card bg-[var(--pill-negative-bg)] p-4 text-[var(--pill-negative-ink)]">
       <p className="flex items-center gap-2 text-section font-medium"><ShieldAlert className="size-5" aria-hidden />{removal ? "Verify the removal of" : "Verify"} {lock.id} on {lock.point}</p>
       <p className="text-body">{look.machine(lock.machineId)?.code} · {c?.code} · applied by {look.person(lock.appliedBy)?.name} at {fmtTime(lock.appliedAt)}{lock.photo ? " · photo attached" : ""}</p>
+      {lock.photoThumb && (
+        // eslint-disable-next-line @next/next/no-img-element -- a local data URL thumbnail
+        <img src={lock.photoThumb} alt={`Photo of ${lock.id} on ${lock.point} as applied`} className="mt-1 h-28 w-auto self-start rounded-control border border-border object-cover" />
+      )}
     </div>
   );
 }

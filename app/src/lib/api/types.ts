@@ -60,6 +60,8 @@ export type EvidenceKind = "photo" | "screen" | "file" | "measurement" | "note";
 export type Evidence = {
   id: Id; kind: EvidenceKind; label: string; at: Iso; by: string; sha256: string;
   value: number | null; unit: string | null; inRange: boolean | null;
+  /** A small JPEG data URL of a photo, for the list and the verifier; the full frame goes to the server. */
+  thumb?: string | null;
 };
 export type StepRun = { key: string; state: "done" | "current" | "pending" | "skipped"; at: Iso | null; by: string | null; evidence: Evidence[] };
 export type CitationKind = "case" | "viper" | "knowledge" | "manual" | "procedure";
@@ -81,7 +83,7 @@ export type IncidentDraft = { machineId: Id; symptom: string; severity: Severity
 export type LockState = "applied" | "verified" | "removal_pending" | "removed";
 export type Lock = {
   id: Id; caseId: Id; machineId: Id; stepKey: string; point: string; state: LockState;
-  appliedBy: Id; appliedAt: Iso; appliedDevice: Id; photo: boolean;
+  appliedBy: Id; appliedAt: Iso; appliedDevice: Id; photo: boolean; photoThumb?: string | null;
   verifiedBy: Id | null; verifiedAt: Iso | null; verifiedDevice: Id | null;
   removedAt: Iso | null; removalVerifiedBy: Id | null; removalVerifiedAt: Iso | null;
 };
