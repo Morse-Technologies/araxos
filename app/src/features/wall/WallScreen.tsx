@@ -17,7 +17,6 @@ type Panel = "cases" | "locks";
 
 export function WallScreen() {
   useApplyDensity("wall");
-  useForceDark();
   const overview = useOverview();
   const cases = useCases();
   const locks = useLocks();
@@ -172,16 +171,4 @@ function LocksPanel({ rows }: { rows: Lock[] }) {
       )}
     </div>
   );
-}
-
-function useForceDark() {
-  useEffect(() => {
-    const html = document.documentElement;
-    const prev = html.dataset.theme;
-    html.dataset.theme = "dark";
-    return () => {
-      if (prev) html.dataset.theme = prev;
-      else delete html.dataset.theme;
-    };
-  }, []);
 }

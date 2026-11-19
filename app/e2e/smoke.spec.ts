@@ -169,6 +169,20 @@ test("unassigned cases follow the technician's zone, with a way to see them all"
   await expect(section.getByText("Utilities")).toBeVisible();
 });
 
+test("the wall screen follows the theme instead of forcing dark", async ({ page }) => {
+  const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/wall");
+  await expect(page.getByRole("heading").first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.dataset.theme ?? null)).toBeNull();
+  const light = await bg();
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect.poll(bg).not.toBe(light);
+  await page.evaluate(() => localStorage.setItem("araxos-theme", "light"));
+  await page.reload();
+  await expect.poll(bg).toBe(light);
+});
+
 test("the theme toggle switches to dark and back", async ({ page }) => {
   await page.goto("/dashboard");
   const html = page.locator("html");
