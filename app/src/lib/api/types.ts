@@ -10,6 +10,8 @@ export type Role = "technician" | "lead" | "engineer" | "safety_approver" | "aud
 export type User = {
   id: Id; name: string; short: string; email: string; roles: Role[]; area: string; hue: number;
   totp: boolean; badge: boolean; lastSeenAt: Iso | null;
+  /** Plant areas a technician covers; the work queue filters unassigned cases by them. Empty: the whole plant. */
+  zones: string[];
 };
 export type Density = "office" | "workshop" | "panel" | "wall";
 export type DeviceKind = "phone" | "terminal" | "personal";

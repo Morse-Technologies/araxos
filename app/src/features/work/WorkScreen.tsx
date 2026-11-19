@@ -1,6 +1,7 @@
 "use client";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { toast } from "sonner";
 import { bySeverity, isOpen, showProblem, useDeviceId, useLookups } from "@/features/cases/shared";
 import {
@@ -10,7 +11,7 @@ import type { Case, Lock, Me } from "@/lib/api/types";
 import { fmtAgo, fmtTime } from "@/lib/format";
 import { lockStateLabel } from "@/lib/labels";
 import { Button, buttonStyles } from "@/ui/atoms";
-import { Card, CaseStatusPill, EmptyState, ErrorState, LoadingRows, PageHeader, SeverityGlyph } from "@/ui/cells";
+import { Card, CaseStatusPill, EmptyState, ErrorState, LoadingRows, PageHeader, Segmented, SeverityGlyph } from "@/ui/cells";
 import { Canvas } from "@/ui/templates/ShellLayout";
 import { verifyPath } from "@/features/safety/LaptopVerifyScreen";
 
@@ -67,7 +68,7 @@ function WorkBody({ me, cases }: { me: Me; cases: Case[] }) {
         />
         {q.continueCase && <ContinueCard c={q.continueCase} machineCode={codeOf(q.continueCase.machineId)} />}
         <AssignedList rows={q.otherMine} machineCode={codeOf} />
-        <UnassignedList rows={q.unassigned} me={me} machineCode={codeOf} />
+        <UnassignedList rows={q.unassigned} me={me} machineCode={codeOf} areaOf={(id) => look.machine(id)?.area ?? ""} />
         {q.canVerify && <LocksWaiting rows={q.waitingLocks} machineCode={codeOf} />}
       </div>
     </Canvas>
@@ -116,26 +117,50 @@ function AssignedList({ rows, machineCode }: { rows: Case[]; machineCode: (id: s
   );
 }
 
-function UnassignedList({ rows, me, machineCode }: { rows: Case[]; me: Me; machineCode: (id: string) => string }) {
+type Scope = "zone" | "all";
+
+/** Unassigned cases in the technician's zones by default; one tap shows the whole plant. */
+function UnassignedList({ rows, me, machineCode, areaOf }: { rows: Case[]; me: Me; machineCode: (id: string) => string; areaOf: (machineId: string) => string }) {
   const reassign = useReassign();
+  const zoned = me.zones.length > 0;
+  const [scope, setScope] = useState<Scope>(zoned ? "zone" : "all");
+  const inZone = rows.filter((c) => me.zones.includes(areaOf(c.machineId)));
+  const shown = scope === "zone" && zoned ? inZone : rows;
+  const elsewhere = rows.length - inZone.length;
   const take = (c: Case) => reassign.mutate(
     { caseId: c.id, userId: me.id },
     { onSuccess: () => toast.success(`You took ${c.code}`), onError: showProblem },
   );
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-section font-medium">Unassigned</h2>
-      {!rows.length ? <EmptyState>No open case is waiting for someone.</EmptyState> : (
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-section font-medium">Unassigned</h2>
+        {zoned && (
+          <Segmented label="Unassigned cases" value={scope} onChange={setScope} options={[
+            { value: "zone", label: `My zone · ${me.zones.join(", ")}` }, { value: "all", label: "All zones" },
+          ]} />
+        )}
+      </div>
+      {!shown.length ? (
+        <EmptyState>
+          {scope === "zone" && zoned ? `No unassigned case in ${me.zones.join(" or ")}.` : "No open case is waiting for someone."}
+          {scope === "zone" && zoned && elsewhere > 0 && <> <button type="button" className="underline" onClick={() => setScope("all")}>Show {elsewhere} in other zones</button></>}
+        </EmptyState>
+      ) : (
         <ul className="flex flex-col divide-y divide-rule rounded-card border border-border">
-          {rows.map((c) => (
+          {shown.map((c) => (
             <li key={c.id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-body">
               <SeverityGlyph severity={c.severity} label={false} />
               <span className="font-medium">{machineCode(c.machineId)}</span>
               <span className="min-w-0 flex-1 truncate">{c.symptom}</span>
+              {scope === "all" && <span className="text-small text-muted">{areaOf(c.machineId)}</span>}
               <Button size="sm" variant="outline" disabled={reassign.isPending} onClick={() => take(c)}>Take it</Button>
             </li>
           ))}
         </ul>
+      )}
+      {scope === "zone" && zoned && shown.length > 0 && elsewhere > 0 && (
+        <p className="text-small text-muted">{elsewhere} more in other zones. <button type="button" className="underline" onClick={() => setScope("all")}>Show all</button></p>
       )}
     </section>
   );

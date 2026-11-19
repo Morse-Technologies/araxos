@@ -28,10 +28,14 @@ const U_ROWS: U[] = [
   ["u-iotero", "Iván Otero", ["admin"], "IT/OT", 230, false],
   ["u-rsanz", "Rosa Sanz", ["viewer"], "Plant management", 90, false],
 ];
+/** Which plant areas each technician covers; leads, engineers and the rest see the whole plant. */
+const ZONES: Record<string, string[]> = {
+  "u-jgarcia": ["Extrusion"], "u-nrey": ["Compounding"], "u-dcosta": ["Extrusion", "Utilities"], "u-jperez": ["Compounding", "Utilities"],
+};
 const shortName = (n: string) => `${n[0]}. ${n.split(" ").slice(1).join(" ")}`;
 export const USERS: User[] = U_ROWS.map(([id, name, roles, area, hue, badge], i) => ({
   id, name, short: shortName(name), email: `${id.slice(2)}@ferrovela.example`, roles, area, hue, badge,
-  totp: true, lastSeenAt: ago(5 + i * 37),
+  totp: true, lastSeenAt: ago(5 + i * 37), zones: ZONES[id] ?? [],
 }));
 export const userName = (id: string | null) => USERS.find((u) => u.id === id)?.name ?? "Unknown";
 export const userShort = (id: string | null) => USERS.find((u) => u.id === id)?.short ?? "—";

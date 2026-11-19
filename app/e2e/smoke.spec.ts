@@ -158,6 +158,17 @@ test("editing a version in review asks first, then invalidates its signatures", 
   await expect(page.getByText("Edited version in review").first()).toBeVisible();
 });
 
+test("unassigned cases follow the technician's zone, with a way to see them all", async ({ page }) => {
+  await page.goto("/work?as=u-jgarcia");
+  const section = page.locator("section", { has: page.getByRole("heading", { name: "Unassigned" }) });
+  await expect(section.getByRole("radio", { name: "My zone · Extrusion" })).toBeChecked();
+  await expect(section.getByRole("button", { name: "Take it" })).toHaveCount(1);
+  await expect(section.getByText("1 more in other zones.")).toBeVisible();
+  await section.getByRole("radio", { name: "All zones" }).click();
+  await expect(section.getByRole("button", { name: "Take it" })).toHaveCount(2);
+  await expect(section.getByText("Utilities")).toBeVisible();
+});
+
 test("the theme toggle switches to dark and back", async ({ page }) => {
   await page.goto("/dashboard");
   const html = page.locator("html");
