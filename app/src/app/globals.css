@@ -1,0 +1,157 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --text-small: 12px;
+  --text-small--line-height: 16px;
+  --text-body: 14px;
+  --text-body--line-height: 20px;
+  --text-section: 16px;
+  --text-section--line-height: 24px;
+  --text-title: 24px;
+  --text-title--line-height: 30px;
+  --text-display: 34px;
+  --text-display--line-height: 40px;
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-border: var(--border);
+  --color-rule: var(--rule);
+  --color-control: var(--control);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+  --color-brand: var(--brand);
+  --color-rec: var(--rec);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-act-report: var(--act-report);
+  --color-act-order: var(--act-order);
+  --color-act-visit: var(--act-visit);
+  --color-act-crm: var(--act-crm);
+
+  --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-spring: cubic-bezier(0.2, 0.9, 0.25, 1.02);
+  --default-transition-duration: 200ms;
+  --default-transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+:root { --dur-1: 120ms; --dur-2: 200ms; --dur-3: 320ms; }
+
+@layer base {
+  html { background: var(--ground); color: var(--text); font-feature-settings: "tnum" 1; -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; font-size: var(--text-body); line-height: var(--text-body--line-height); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  ::selection { background: var(--accent-soft); }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+}
+
+/* ---- Squircles (§7.2.2) -------------------------------------------------------------------------------- */
+/* A continuous-curvature corner where the browser has it; a plain radius otherwise (the `Squircle` component
+   clips identity pieces with an SVG path on iOS Safari). corner-shape needs a larger radius to read the same. */
+@utility sq {
+  border-radius: var(--sq, 20px);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--sq, 20px) * 1.7);
+  }
+}
+@utility sq-xs { --sq: 8px; }
+@utility sq-sm { --sq: 12px; }
+@utility sq-md { --sq: 16px; }
+@utility sq-lg { --sq: 24px; }
+@utility sq-xl { --sq: 32px; }
+
+/* ---- Liquid Glass (ADR-F29) ---------------------------------------------------------------------------- */
+/* Clear tint, backdrop blur and saturation, a specular rim (bright top-left, soft bottom-right) drawn by a
+   masked gradient border, a faint sheen and a soft shadow. `glass-refract` adds SVG refraction in Chromium. */
+@utility glass {
+  position: relative;
+  isolation: isolate;
+  background: var(--glass-sheen), var(--glass-tint);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow: var(--glass-shadow), inset 0 0 0 1px var(--glass-edge);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 1px;
+    border-radius: inherit;
+    corner-shape: inherit;
+    pointer-events: none;
+    background: linear-gradient(140deg, var(--glass-rim-hi), transparent 32%, transparent 68%, var(--glass-rim-lo));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+}
+@utility glass-strong { --glass-tint: var(--glass-tint-strong); }
+@utility glass-clear { --glass-tint: var(--glass-tint-clear); --glass-blur: 10px; }
+@utility glass-float { box-shadow: var(--glass-shadow-float), inset 0 0 0 1px var(--glass-edge); }
+
+/* Solid fallbacks: our switch, the OS asking for less transparency or more contrast, and sun mode. */
+:root[data-transparency="reduced"] :is(.glass), :root[data-sun="on"] :is(.glass) {
+  background: var(--surface) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 0 0 1px var(--border), 0 1px 2px rgb(0 0 0 / 0.06) !important;
+}
+:root[data-transparency="reduced"] .glass::before, :root[data-sun="on"] .glass::before { display: none; }
+@media (prefers-reduced-transparency: reduce) {
+  .glass { background: var(--surface) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; box-shadow: 0 0 0 1px var(--border) !important; }
+  .glass::before { display: none; }
+}
+@media (prefers-contrast: more) {
+  .glass { background: var(--surface) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; box-shadow: 0 0 0 1px var(--text) !important; }
+  .glass::before { display: none; }
+}
+
+/* ---- The ground the glass sits on: soft light, no pattern ---------------------------------------------- */
+.field-ground {
+  position: fixed;
+  inset: -24px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(42% 38% at 12% 8%, var(--bg-a), transparent 70%),
+    radial-gradient(36% 34% at 92% 18%, var(--bg-b), transparent 70%),
+    radial-gradient(40% 40% at 70% 96%, var(--bg-c), transparent 70%),
+    var(--ground);
+}
+:root[data-sun="on"] .field-ground, :root[data-transparency="reduced"] .field-ground { background: var(--ground); }
+
+/* ---- Entities in a transcript (§7.4) ------------------------------------------------------------------- */
+.ent { text-decoration-line: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; text-decoration-color: currentColor; border-radius: 4px; cursor: pointer; transition: background-color var(--dur-2) var(--ease-out); }
+.ent[data-conf="medium"] { text-decoration-color: color-mix(in srgb, currentColor 55%, transparent); }
+.ent[data-conf="low"] { text-decoration-style: dotted; background: var(--pill-warning-bg); color: var(--pill-warning-ink); }
+.ent[data-active="true"] { background: var(--accent-soft); text-decoration-color: var(--accent); }
+.word[data-active="true"] { background: var(--accent-soft); border-radius: 4px; }
+
+/* ---- Small shared bits --------------------------------------------------------------------------------- */
+.kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 6px; font: 500 11px/1 var(--font-plex-mono), monospace; color: var(--muted); background: var(--pill-neutral-bg); box-shadow: inset 0 -1px 0 var(--rule); }
+.scroll-soft { scrollbar-width: thin; scrollbar-color: var(--control) transparent; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Theme reveal (view transitions): no cross-fade, the circle does the work. */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+}
