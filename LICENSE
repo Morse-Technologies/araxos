@@ -4,4 +4,4 @@ This software and its source code are proprietary and confidential. No licence i
 merge, publish, distribute, sublicense or sell copies of it, in whole or in part, without the prior written
 permission of Morse Technologies.
 
-Third-party components keep their own licences (see app/package.json and each package's licence file).
+Third-party components keep their own licences.
