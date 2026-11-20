@@ -3,3 +3,5 @@
 *.bak
 *.bak-*
 .DS_Store
+/ARAXOS-FIELD.md
+/field-mockups/
